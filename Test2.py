@@ -23,7 +23,7 @@ class EmployeeApp(tk.Tk):
         self.employees = employee_file
 
         #For each page
-        for page in (LoginPage, EditPage):
+        for page in (LoginPage, EditPage, EmployeeList, EmployeeProfile):
             #Initialize frame values
             page_name = page.__name__
             frame = page(parent = container, controller = self, employees = self.employees)
@@ -56,8 +56,82 @@ class LoginPage(tk.Frame):
         title.grid(row = 0, column = 0, sticky = tk.W)
 
         #Create a login button
-        button1 = tk.Button(self, text = "Login", command = lambda: controller.present_frame("EditPage"))
+        button1 = tk.Button(self, text = "Login", command = lambda: controller.present_frame("EmployeeProfile"))
         button1.grid(row = 1, column = 0, sticky = tk.W)
+
+class EmployeeList(tk.Frame):
+    def __init__(self, parent, controller, employees):
+        tk.Frame.__init__(self, parent)
+
+        self.controller = controller
+
+        #self.employees_database = employees_database
+        tk.Label(self, text = "Search Employee ", fg = "black", font = "none 12 bold").grid(row = 1, column = 0, sticky = tk.W)
+        self.searchBox = tk.Entry(self, width = 73, bg = "white").grid(row=2, column =0, sticky = tk.NW)
+        self.searchButton = tk.Button(self, text = "Search", width = 20, bg = "white", command = self.searchEmployee)
+        self.searchButton.grid(row= 2, column = 0, sticky = tk.NE)
+        
+        self.search_Results = ["John Morgan        #91423", "Spencer Crow       #83523"]
+        self.resultBox = tk.Listbox(self, width = 100, bg = "white")
+        self.resultBox.grid(row=3, column =0, sticky = tk.NW)
+        self.selectedEmployee = None
+        
+        #populate the search Results
+        for item in self.search_Results:
+            self.resultBox.insert(tk.END, item)
+        #event handler for when clicked. selectEmployee()
+        self.resultBox.bind("<<ListboxSelect>>", self.selectEmployee)
+        
+        self.addEmployeeButton = tk.Button(self, text = "Add Employee", width = 20, bg = "white", command = lambda: controller.preset_frame("NewEmployeeFrame"))
+        self.addEmployeeButton.grid(row=4, column= 0, sticky = tk.NW)
+        
+        self.editEmployeeButton = tk.Button(self, text = "Edit Employee", width = 20, bg = "white", command = lambda: controller.preset_frame("EditEmployeeFrame"))
+        self.editEmployeeButton.grid(row=5, column= 0, sticky = tk.NW)
+
+        self.payrollButton = tk.Button(self, text = "Payroll", width = 20, bg = "white", command = lambda: controller.preset_frame("payrollFrame"))
+        self.payrollButton.grid(row=4, column= 0, sticky = tk.E)
+
+        self.exportEmployeeButton = tk.Button(self, text = "Export Employee", width = 20, bg = "white", command = lambda: controller.preset_frame("exportEmployee"))
+        self.exportEmployeeButton.grid(row=5, column= 0, sticky = tk.E)
+
+        
+        #copys the selected employee to selectedEmployee
+    def selectEmployee(self, event):
+        self.selectedEmployee = self.resultBox.get(tk.ACTIVE)
+        print(self.selectedEmployee)
+        
+    def searchEmployee(self):
+        pass
+
+class EmployeeProfile(tk.Frame):
+    def __init__(self, parent, controller, employees):
+        #Initialize tk
+        tk.Frame.__init__(self, parent)
+
+        #Initialize controller
+        self.controller = controller
+       
+        tk.Label(self, text="[Employee Name]",justify='center').grid(column=0, row=0, columnspan=3)
+        tk.Label(self, text="[Employee ID number]",justify='center').grid(column=0, row=1, columnspan=3)
+        tk.Label(self, text="[position] -- [department]").grid(row=2, column=0, sticky=tk.W)
+        tk.Label(self, text="Office Phone: (555) 555-5555").grid(column=0, row=3, columnspan=1, sticky=tk.W)
+        tk.Label(self, text="Email: sample@uvu.edu").grid(row=4, column=0, columnspan=1, sticky=tk.W)
+        tk.Label(self, text=' ').grid(row=5,column=0)
+
+        if self.check_permission(23): #the logged-in employee's number will be passed in
+            tk.Label(self, text='<<Other employee info>>').grid(row=6, column=0, sticky=tk.W)
+            tk.Button(self, text="Edit Employee", command=self.standIn).grid(column=1, row=10)
+
+        tk.Button(self, text="Back", command = lambda: controller.present_frame("LoginPage")).grid(column=2, row=10)
+    
+    def standIn():
+        pass
+
+    def check_permission(self, id):
+        """returns true if logged in employee matches profile id#
+        returns true if logged in as administrator
+        returns false otherwise"""
+        return False
 
 class EditPage(tk.Frame):
     def __init__(self, parent, controller, employees):
@@ -352,6 +426,7 @@ class EditPage(tk.Frame):
     def _output_last_five_ids(self):
         self.outputbox_five_ids.delete(0, tk.END)
         self.outputbox_five_ids.insert(0, str(self.LAST_FIVE_EMPLOYEES))
+
 
 def main():
     login_file = 'login.csv'
