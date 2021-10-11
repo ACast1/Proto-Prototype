@@ -1,10 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox as msgBox
 import csv
-from Employee import Employee
 
 class EmployeeApp(tk.Tk):
-    def __init__(self, login_file, employee_file):
+    def __init__(self):
         #Initialize tk
         tk.Tk.__init__(self)
         
@@ -308,10 +307,7 @@ class EmployeeProfile(tk.Frame):
         return False
 
 def main():
-    login_file = 'login.csv'
-    data_file = 'data.csv'
-
-    app = EmployeeApp(login_file, data_file)
+    app = EmployeeApp()
     app.mainloop()
 
 if __name__ == "__main__":
